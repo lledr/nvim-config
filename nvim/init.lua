@@ -1,44 +1,44 @@
-local autocmd = vim.api.nvim_create_autocmd
-
-autocmd('TextYankPost', {
+vim.api.nvim_create_autocmd('TextYankPost', {
     pattern = '*',
     callback = function()
-        vim.highlight.on_yank({
+        vim.hl.on_yank({
             higroup = 'IncSearch',
             timeout = 100,
         })
     end,
 })
 
-autocmd({"BufWritePre"}, {
+vim.api.nvim_create_autocmd({"BufWritePre"}, {
     pattern = "*",
     command = [[%s/\s\+$//e]],
 })
 
-autocmd('LspAttach', {
+vim.api.nvim_create_autocmd('LspAttach', {
     callback = function(e)
         local opts = { buffer = e.buf }
         vim.keymap.set("n", "gd", function() vim.lsp.buf.definition() end, opts)
-        vim.keymap.set("n", "K", function() vim.lsp.buf.hover() end, opts)
-        vim.keymap.set("n", "<leader>vws", function() vim.lsp.buf.workspace_symbol() end, opts)
-        vim.keymap.set("n", "<leader>vd", function() vim.diagnostic.open_float() end, opts)
-        vim.keymap.set("n", "<leader>vca", function() vim.lsp.buf.code_action() end, opts)
-        vim.keymap.set("n", "<leader>vrr", function() vim.lsp.buf.references() end, opts)
-        vim.keymap.set("n", "<leader>vrn", function() vim.lsp.buf.rename() end, opts)
+        --vim.keymap.set("n", "K", function() vim.lsp.buf.hover() end, opts)
+        --vim.keymap.set("n", "<leader>vws", function() vim.lsp.buf.workspace_symbol() end, opts)
+        --vim.keymap.set("n", "<leader>vd", function() vim.diagnostic.open_float() end, opts)
+        --vim.keymap.set("n", "<leader>vca", function() vim.lsp.buf.code_action() end, opts)
+        --vim.keymap.set("n", "<leader>vrr", function() vim.lsp.buf.references() end, opts)
+        --vim.keymap.set("n", "<leader>vrn", function() vim.lsp.buf.rename() end, opts)
+        --vim.keymap.set("n", "<C-!>", function() vim.diagnostic.open_float() end, opts)
+        vim.keymap.set("n", "<Leader>!", function() vim.diagnostic.open_float() end, opts)
         vim.keymap.set("i", "<C-h>", function() vim.lsp.buf.signature_help() end, opts)
         vim.keymap.set("n", "[d", function() vim.diagnostic.goto_next() end, opts)
         vim.keymap.set("n", "]d", function() vim.diagnostic.goto_prev() end, opts)
     end
 })
 
-autocmd('FocusLost', {
+vim.api.nvim_create_autocmd('FocusLost', {
     pattern = '*',
     callback = function() vim.opt.mouse = "" end
 })
 
-autocmd('FocusGained', {
+vim.api.nvim_create_autocmd('FocusGained', {
     pattern = '*',
-    callback = function() vim.opt.mouse = "a" end
+    callback = function() vim.opt.mouse = "nv" end
 })
 
 vim.g.clipboard = {
@@ -54,6 +54,8 @@ vim.g.clipboard = {
     cache_enabled = 0,
 }
 
+vim.opt.mouse = "nv"
+
 vim.g.netrw_browse_split = 0
 vim.g.netrw_banner = 0
 vim.g.netrw_winsize = 25
@@ -65,7 +67,11 @@ vim.opt.relativenumber = true
 vim.opt.tabstop = 4
 vim.opt.softtabstop = 4
 vim.opt.shiftwidth = 4
-vim.opt.expandtab = true
+vim.opt.expandtab = false
+
+vim.opt.list = true
+vim.opt.listchars = "eol:¬,tab:⇢ ,space:·"
+--vim.opt.listchars = "tab:⇢ ,space:·"
 
 vim.opt.smartindent = true
 
@@ -91,16 +97,14 @@ vim.opt.updatetime = 1000
 vim.opt.hidden = false
 
 vim.g.mapleader = " "
-vim.keymap.set("n", "<leader>e", vim.cmd.Ex)
+vim.keymap.set("n", "<C-e>", vim.cmd.Ex)
 
 vim.keymap.set("v", "J", ":m '>+1<CR>gv=gv")
 vim.keymap.set("v", "K", ":m '<-2<CR>gv=gv")
 
 vim.keymap.set("n", "J", "mzJ`z")
---vim.keymap.set("n", "<C-d>", "<C-d>zz")
---vim.keymap.set("n", "<C-u>", "<C-u>zz")
-vim.keymap.set("n", "n", "nzzzv")
-vim.keymap.set("n", "N", "Nzzzv")
+--vim.keymap.set("n", "n", "nzzzv")
+--vim.keymap.set("n", "N", "Nzzzv")
 vim.keymap.set("n", "=ap", "ma=ap'a")
 
 vim.keymap.set("n", "<leader>vwm", function()
@@ -120,7 +124,7 @@ vim.keymap.set({"n", "v"}, "<leader>d", [["_d]])
 vim.keymap.set("i", "<C-c>", "<Esc>")
 
 vim.keymap.set("n", "Q", "<nop>")
-vim.keymap.set("n", "<C-f>", "<cmd>silent !tmux neww tmux-sessionizer<CR>")
+--vim.keymap.set("n", "<C-f>", "<cmd>silent !tmux neww tmux-sessionizer<CR>")
 
 vim.keymap.set("n", "<C-k>", "<cmd>cnext<CR>zz")
 vim.keymap.set("n", "<C-j>", "<cmd>cprev<CR>zz")
@@ -137,11 +141,13 @@ vim.keymap.set("n", "<leader>mr", "<cmd>CellularAutomaton make_it_rain<CR>");
 
 --vim.diagnostic.config({ virtual_text = true })
 
-vim.keymap.set("n", "<leader>cc", ":exec 'cd' . expand('%:p:h')<CR>", { silent = true })
+vim.keymap.set("n", "<leader>cd", ":exec 'cd' . expand('%:p:h')<CR>", { silent = true })
 
 --vim.keymap.set({"", "!"}, "<LeftMouse>", "<nop>")
-vim.keymap.set({"n", "v"}, "<RightMouse>", "<nop>")
-vim.keymap.set("i", "<RightMouse>", [[<C-o>"+P]])
+vim.keymap.set("n", "<RightMouse>", "<nop>")
+vim.keymap.set("v", "<RightMouse>", [["+y]])
+--vim.keymap.set("i", "<RightMouse>", [[<C-o>"+P]])
+--vim.keymap.set("c", "<RightMouse>", "aaa")
 
 vim.keymap.set({"n", "v"}, "<C-l>", "zL")
 vim.keymap.set({"n", "v"}, "<C-h>", "zH")
