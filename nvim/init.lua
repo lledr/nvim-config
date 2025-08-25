@@ -14,21 +14,46 @@ vim.api.nvim_create_autocmd({"BufWritePre"}, {
 })
 
 vim.api.nvim_create_autocmd('LspAttach', {
-    callback = function(e)
-        local opts = { buffer = e.buf }
-        vim.keymap.set("n", "gd", function() vim.lsp.buf.definition() end, opts)
-        --vim.keymap.set("n", "K", function() vim.lsp.buf.hover() end, opts)
-        --vim.keymap.set("n", "<leader>vws", function() vim.lsp.buf.workspace_symbol() end, opts)
-        --vim.keymap.set("n", "<leader>vd", function() vim.diagnostic.open_float() end, opts)
-        --vim.keymap.set("n", "<leader>vca", function() vim.lsp.buf.code_action() end, opts)
-        --vim.keymap.set("n", "<leader>vrr", function() vim.lsp.buf.references() end, opts)
-        --vim.keymap.set("n", "<leader>vrn", function() vim.lsp.buf.rename() end, opts)
-        --vim.keymap.set("n", "<C-!>", function() vim.diagnostic.open_float() end, opts)
-        vim.keymap.set("n", "<Leader>!", function() vim.diagnostic.open_float() end, opts)
-        vim.keymap.set("i", "<C-h>", function() vim.lsp.buf.signature_help() end, opts)
-        vim.keymap.set("n", "[d", function() vim.diagnostic.goto_next() end, opts)
-        vim.keymap.set("n", "]d", function() vim.diagnostic.goto_prev() end, opts)
-    end
+	callback = function(e)
+		local opts = { buffer = e.buf }
+		vim.keymap.set("n", "gd", function() vim.lsp.buf.definition() end, opts)
+		--vim.keymap.set("n", "K", function() vim.lsp.buf.hover() end, opts)
+		--vim.keymap.set("n", "<leader>vws", function() vim.lsp.buf.workspace_symbol() end, opts)
+		--vim.keymap.set("n", "<leader>vd", function() vim.diagnostic.open_float() end, opts)
+		--vim.keymap.set("n", "<leader>vca", function() vim.lsp.buf.code_action() end, opts)
+		--vim.keymap.set("n", "<leader>vrr", function() vim.lsp.buf.references() end, opts)
+		--vim.keymap.set("n", "<leader>vrn", function() vim.lsp.buf.rename() end, opts)
+		--vim.keymap.set("n", "<C-!>", function() vim.diagnostic.open_float() end, opts)
+		vim.keymap.set("n", "<Leader>!", function() vim.diagnostic.open_float() end, opts)
+		vim.keymap.set("i", "<C-h>", function() vim.lsp.buf.signature_help() end, opts)
+		vim.keymap.set("n", "[d", function() vim.diagnostic.goto_next() end, opts)
+		vim.keymap.set("n", "]d", function() vim.diagnostic.goto_prev() end, opts)
+
+		local hlock = false
+		vim.keymap.set("n", "<Leader><Leader>", function() hlock = not hlock end, opts)
+
+		local client = vim.lsp.get_client_by_id(e.data.client_id)
+		if client and client:supports_method(vim.lsp.protocol.Methods.textDocument_documentHighlight, e.buf) then
+			local highlight_augroup = vim.api.nvim_create_augroup('lsp-highlight', { clear = false })
+			vim.api.nvim_create_autocmd({ 'CursorHold', 'CursorHoldI' }, {
+				buffer = e.buf, group = highlight_augroup,
+				callback = function() if not hlock then vim.lsp.buf.document_highlight() end end,
+			})
+
+			vim.api.nvim_create_autocmd({ 'CursorMoved', 'CursorMovedI' }, {
+				buffer = e.buf, group = highlight_augroup,
+				callback = function() if not hlock then vim.lsp.buf.clear_references() end end,
+			})
+
+			vim.api.nvim_create_autocmd('LspDetach', {
+				group = vim.api.nvim_create_augroup('lsp-detach', { clear = true }),
+				callback = function(e2)
+					vim.lsp.buf.clear_references()
+					vim.api.nvim_clear_autocmds { group = 'lsp-highlight', buffer = e2.buf }
+				end,
+			})
+		end
+	end
 })
 
 vim.api.nvim_create_autocmd('FocusLost', {
@@ -41,18 +66,25 @@ vim.api.nvim_create_autocmd('FocusGained', {
     callback = function() vim.opt.mouse = "nv" end
 })
 
-vim.g.clipboard = {
-    name = 'WslClipboard',
-    copy = {
-        ["+"] = 'clip.exe',
-        ["*"] = 'clip.exe',
-    },
-    paste = {
-        ["+"] = 'powershell.exe -c [Console]::Out.Write($(Get-Clipboard -Raw).tostring().replace("`r", ""))',
-        ["*"] = 'powershell.exe -c [Console]::Out.Write($(Get-Clipboard -Raw).tostring().replace("`r", ""))',
-    },
-    cache_enabled = 0,
-}
+if vim.loop.os_uname().release:lower():find 'microsoft' then
+	vim.g.clipboard = {
+	    name = 'WslClipboard',
+	    copy = {
+		["+"] = 'clip.exe',
+		["*"] = 'clip.exe',
+	    },
+	    paste = {
+		["+"] = 'powershell.exe -c [Console]::Out.Write($(Get-Clipboard -Raw).tostring().replace("`r", ""))',
+		["*"] = 'powershell.exe -c [Console]::Out.Write($(Get-Clipboard -Raw).tostring().replace("`r", ""))',
+	    },
+	    cache_enabled = 0,
+	}
+end
+
+
+
+
+vim.g.have_nerd_font = true
 
 vim.opt.mouse = "nv"
 
@@ -70,7 +102,8 @@ vim.opt.shiftwidth = 4
 vim.opt.expandtab = false
 
 vim.opt.list = true
-vim.opt.listchars = "eol:¬,tab:⇢ ,space:·"
+vim.opt.listchars = "eol:¬,tab:… ,space:·"
+--vim.opt.listchars = "eol:¬,tab:⇢ ,space:·"
 --vim.opt.listchars = "tab:⇢ ,space:·"
 
 vim.opt.smartindent = true
@@ -165,3 +198,4 @@ require("lazy").setup({
     change_detection = { notify = false }
 })
 
+vim.cmd.colorscheme('tokyonight')
