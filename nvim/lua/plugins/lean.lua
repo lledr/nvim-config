@@ -20,5 +20,8 @@ return {
   ---@type lean.Config
   opts = { -- see below for full configuration options
     mappings = true,
+    infoview = {
+      autoopen = false
+    }
   }
 }

@@ -26,8 +26,8 @@ vim.api.nvim_create_autocmd('LspAttach', {
 		--vim.keymap.set("n", "<C-!>", function() vim.diagnostic.open_float() end, opts)
 		vim.keymap.set("n", "<Leader>!", function() vim.diagnostic.open_float() end, opts)
 		vim.keymap.set("i", "<C-h>", function() vim.lsp.buf.signature_help() end, opts)
-		vim.keymap.set("n", "[d", function() vim.diagnostic.goto_next() end, opts)
-		vim.keymap.set("n", "]d", function() vim.diagnostic.goto_prev() end, opts)
+		--vim.keymap.set("n", "[d", function() vim.diagnostic.goto_next() end, opts)
+		--vim.keymap.set("n", "]d", function() vim.diagnostic.goto_prev() end, opts)
 
 		local hlock = false
 		vim.keymap.set("n", "<Leader><Leader>", function() hlock = not hlock end, opts)
@@ -81,9 +81,6 @@ if vim.loop.os_uname().release:lower():find 'microsoft' then
 	}
 end
 
-
-
-
 vim.g.have_nerd_font = true
 
 vim.opt.mouse = "nv"
@@ -129,7 +126,7 @@ vim.opt.updatetime = 1000
 
 vim.opt.hidden = false
 
-vim.g.mapleader = " "
+vim.g.mapleader = "ù"
 vim.keymap.set("n", "<C-e>", vim.cmd.Ex)
 
 vim.keymap.set("v", "J", ":m '>+1<CR>gv=gv")
@@ -186,6 +183,12 @@ vim.keymap.set({"n", "v"}, "<C-l>", "zL")
 vim.keymap.set({"n", "v"}, "<C-h>", "zH")
 vim.keymap.set("i", "<C-l>", "<C-o>zL")
 vim.keymap.set("i", "<C-h>", "<C-o>zH")
+
+vim.keymap.set("n", "*", "*N:set hls<CR>", { silent = true })
+vim.keymap.set("n", "<Leader>j", ":set hls!<CR>", { silent = true })
+
+vim.keymap.set("t", "<Esc>", "<C-\\><C-n>")
+vim.keymap.set("t", "<C-v><Esc>", "<Esc>")
 
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
