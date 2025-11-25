@@ -12,6 +12,7 @@ return {
         "Julian/lean.nvim",
         --"nvim-java/nvim-java",
         "mfussenegger/nvim-jdtls",
+        "JavaHello/spring-boot.nvim",
     },
 
     config = function()
@@ -19,6 +20,7 @@ return {
         require("mason").setup()
         --require("java").setup()
         require("mason-lspconfig").setup()
+        require("spring_boot").init_lsp_commands()
 
         local capabilities = vim.tbl_deep_extend( "force",
             {}, vim.lsp.protocol.make_client_capabilities(), require("cmp_nvim_lsp").default_capabilities())
@@ -50,6 +52,17 @@ return {
                 },
             },
             filetypes = { 'typescript', 'javascript', 'javascriptreact', 'typescriptreact', 'vue' },
+        })
+
+        vim.lsp.config('jdtls', {
+            capabilities = capabilities,
+            cmd = {
+                vim.fn.exepath('jdtls'),
+                string.format('--jvm-arg=-javaagent:%s', vim.fn.expand('$MASON/share/jdtls/lombok.jar')),
+            },
+            init_options = {
+                bundles = require('spring_boot').java_extensions(),
+            },
         })
 
         local cmp = require('cmp')
