@@ -10,17 +10,17 @@ return {
         "hrsh7th/nvim-cmp",
         "j-hui/fidget.nvim",
         "Julian/lean.nvim",
-        --"nvim-java/nvim-java",
+        -- "nvim-java/nvim-java",
         "mfussenegger/nvim-jdtls",
-        "JavaHello/spring-boot.nvim",
+        -- "JavaHello/spring-boot.nvim",
     },
 
     config = function()
         require("fidget").setup({})
         require("mason").setup()
-        --require("java").setup()
+        -- require("java").setup()
         require("mason-lspconfig").setup()
-        require("spring_boot").init_lsp_commands()
+        -- require("spring_boot").init_lsp_commands()
 
         local capabilities = vim.tbl_deep_extend( "force",
             {}, vim.lsp.protocol.make_client_capabilities(), require("cmp_nvim_lsp").default_capabilities())
@@ -60,15 +60,15 @@ return {
                 vim.fn.exepath('jdtls'),
                 string.format('--jvm-arg=-javaagent:%s', vim.fn.expand('$MASON/share/jdtls/lombok.jar')),
             },
-            init_options = {
-                bundles = require('spring_boot').java_extensions(),
-            },
+            -- init_options = {
+            --     bundles = require('spring_boot').java_extensions(),
+            -- },
         })
 
         local cmp = require('cmp')
         cmp.setup({
             mapping = cmp.mapping.preset.insert({
-                ['<Tab>']     = cmp.mapping.confirm({ select = true }),
+                ['<Tab>']     = cmp.mapping.confirm({ select = true, behavior = cmp.ConfirmBehavior.Insert }),
                 ['<C-Space>'] = cmp.mapping.complete(),
             }),
             sources = cmp.config.sources({ { name = 'nvim_lsp' }, }, { { name = 'buffer' }, })

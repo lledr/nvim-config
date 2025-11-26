@@ -1,16 +1,16 @@
 vim.api.nvim_create_autocmd('TextYankPost', {
-    pattern = '*',
-    callback = function()
-        vim.hl.on_yank({
-            higroup = 'IncSearch',
-            timeout = 100,
-        })
-    end,
+	pattern = '*',
+	callback = function()
+		vim.hl.on_yank({
+			higroup = 'IncSearch',
+			timeout = 100,
+		})
+	end,
 })
 
 vim.api.nvim_create_autocmd({"BufWritePre"}, {
-    pattern = "*",
-    command = [[%s/\s\+$//e]],
+	pattern = "*",
+	command = [[%s/\s\+$//e]],
 })
 
 vim.api.nvim_create_autocmd('LspAttach', {
@@ -28,6 +28,7 @@ vim.api.nvim_create_autocmd('LspAttach', {
 		vim.keymap.set("i", "<C-h>", function() vim.lsp.buf.signature_help() end, opts)
 		--vim.keymap.set("n", "[d", function() vim.diagnostic.goto_next() end, opts)
 		--vim.keymap.set("n", "]d", function() vim.diagnostic.goto_prev() end, opts)
+		vim.keymap.set("n", "<Leader>o", function() require('jdtls').organize_imports() end)
 
 		local hlock = false
 		vim.keymap.set("n", "<Leader><Leader>", function() hlock = not hlock end, opts)
@@ -57,27 +58,27 @@ vim.api.nvim_create_autocmd('LspAttach', {
 })
 
 vim.api.nvim_create_autocmd('FocusLost', {
-    pattern = '*',
-    callback = function() vim.opt.mouse = "" end
+	pattern = '*',
+	callback = function() vim.opt.mouse = "" end
 })
 
 vim.api.nvim_create_autocmd('FocusGained', {
-    pattern = '*',
-    callback = function() vim.opt.mouse = "nv" end
+	pattern = '*',
+	callback = function() vim.opt.mouse = "nv" end
 })
 
 if vim.loop.os_uname().release:lower():find 'microsoft' then
 	vim.g.clipboard = {
-	    name = 'WslClipboard',
-	    copy = {
+		name = 'WslClipboard',
+		copy = {
 		["+"] = 'clip.exe',
 		["*"] = 'clip.exe',
-	    },
-	    paste = {
+		},
+		paste = {
 		["+"] = 'powershell.exe -c [Console]::Out.Write($(Get-Clipboard -Raw).tostring().replace("`r", ""))',
 		["*"] = 'powershell.exe -c [Console]::Out.Write($(Get-Clipboard -Raw).tostring().replace("`r", ""))',
-	    },
-	    cache_enabled = 0,
+		},
+		cache_enabled = 0,
 	}
 end
 
@@ -88,14 +89,15 @@ vim.opt.mouse = "nv"
 vim.g.netrw_browse_split = 0
 vim.g.netrw_banner = 0
 vim.g.netrw_winsize = 25
+
 vim.opt.guicursor = "a:blinkon500-blinkoff500"
 
 vim.opt.nu = true
 vim.opt.relativenumber = true
 
 vim.opt.tabstop = 4
-vim.opt.softtabstop = 4
-vim.opt.shiftwidth = 4
+vim.opt.softtabstop = 0
+vim.opt.shiftwidth = 0
 vim.opt.expandtab = false
 
 vim.opt.list = true
@@ -137,13 +139,6 @@ vim.keymap.set("n", "J", "mzJ`z")
 --vim.keymap.set("n", "N", "Nzzzv")
 vim.keymap.set("n", "=ap", "ma=ap'a")
 
-vim.keymap.set("n", "<leader>vwm", function()
-    require("vim-with-me").StartVimWithMe()
-end)
-vim.keymap.set("n", "<leader>svwm", function()
-    require("vim-with-me").StopVimWithMe()
-end)
-
 -- vim.keymap.set("x", "<leader>p", [["_dP]])
 vim.keymap.set({"n", "v"}, "<leader>p", [["+p]])
 vim.keymap.set({"n", "v"}, "<leader>P", [["+P]])
@@ -165,7 +160,7 @@ vim.keymap.set("n", "<leader>s", [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><
 vim.keymap.set("n", "<leader>x", "<cmd>!chmod +x %<CR>", { silent = true })
 
 vim.keymap.set("n", "<leader>ca", function()
-    require("cellular-automaton").start_animation("make_it_rain")
+	require("cellular-automaton").start_animation("make_it_rain")
 end)
 vim.keymap.set("n", "<leader>mr", "<cmd>CellularAutomaton make_it_rain<CR>");
 
@@ -192,13 +187,13 @@ vim.keymap.set("t", "<C-v><Esc>", "<Esc>")
 
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
-  vim.fn.system({ "git", "clone", "--filter=blob:none", "https://github.com/folke/lazy.nvim.git", "--branch=stable", lazypath })
+	vim.fn.system({ "git", "clone", "--filter=blob:none", "https://github.com/folke/lazy.nvim.git", "--branch=stable", lazypath })
 end
 vim.opt.rtp:prepend(lazypath)
 
 require("lazy").setup({
-    spec = "plugins",
-    change_detection = { notify = false }
+	spec = "plugins",
+	change_detection = { notify = false }
 })
 
 vim.cmd.colorscheme('tokyonight')
