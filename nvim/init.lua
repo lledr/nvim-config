@@ -10,40 +10,31 @@ vim.api.nvim_create_autocmd('TextYankPost', {
 
 vim.api.nvim_create_autocmd({"BufWritePre"}, {
 	pattern = "*",
-	command = [[%s/\s\+$//e]],
+	callback = function()
+		local pos = vim.api.nvim_win_get_cursor(0)
+		vim.cmd([[%s/\s\+$//e]])
+		vim.api.nvim_win_set_cursor(0, pos)
+	end
 })
 
 vim.api.nvim_create_autocmd('LspAttach', {
 	callback = function(e)
 		local opts = { buffer = e.buf }
-		vim.keymap.set("n", "gd", function() vim.lsp.buf.definition() end, opts)
-		--vim.keymap.set("n", "K", function() vim.lsp.buf.hover() end, opts)
-		--vim.keymap.set("n", "<leader>vws", function() vim.lsp.buf.workspace_symbol() end, opts)
-		--vim.keymap.set("n", "<leader>vd", function() vim.diagnostic.open_float() end, opts)
-		--vim.keymap.set("n", "<leader>vca", function() vim.lsp.buf.code_action() end, opts)
-		--vim.keymap.set("n", "<leader>vrr", function() vim.lsp.buf.references() end, opts)
-		--vim.keymap.set("n", "<leader>vrn", function() vim.lsp.buf.rename() end, opts)
-		--vim.keymap.set("n", "<C-!>", function() vim.diagnostic.open_float() end, opts)
 		vim.keymap.set("n", "<Leader>!", function() vim.diagnostic.open_float() end, opts)
 		vim.keymap.set("i", "<C-h>", function() vim.lsp.buf.signature_help() end, opts)
-		--vim.keymap.set("n", "[d", function() vim.diagnostic.goto_next() end, opts)
-		--vim.keymap.set("n", "]d", function() vim.diagnostic.goto_prev() end, opts)
 		vim.keymap.set("n", "<Leader>o", function() require('jdtls').organize_imports() end)
-
-		local hlock = false
-		vim.keymap.set("n", "<Leader><Leader>", function() hlock = not hlock end, opts)
 
 		local client = vim.lsp.get_client_by_id(e.data.client_id)
 		if client and client:supports_method(vim.lsp.protocol.Methods.textDocument_documentHighlight, e.buf) then
 			local highlight_augroup = vim.api.nvim_create_augroup('lsp-highlight', { clear = false })
 			vim.api.nvim_create_autocmd({ 'CursorHold', 'CursorHoldI' }, {
 				buffer = e.buf, group = highlight_augroup,
-				callback = function() if not hlock then vim.lsp.buf.document_highlight() end end,
+				callback = function() vim.lsp.buf.document_highlight() end,
 			})
 
 			vim.api.nvim_create_autocmd({ 'CursorMoved', 'CursorMovedI' }, {
 				buffer = e.buf, group = highlight_augroup,
-				callback = function() if not hlock then vim.lsp.buf.clear_references() end end,
+				callback = function() vim.lsp.buf.clear_references() end,
 			})
 
 			vim.api.nvim_create_autocmd('LspDetach', {
@@ -81,8 +72,6 @@ if vim.loop.os_uname().release:lower():find 'microsoft' then
 		cache_enabled = 0,
 	}
 end
-
-vim.g.have_nerd_font = true
 
 vim.opt.mouse = "nv"
 
@@ -124,19 +113,20 @@ vim.opt.sidescrolloff = 16
 vim.opt.signcolumn = "yes"
 vim.opt.isfname:append("@-@")
 
-vim.opt.updatetime = 1000
+vim.opt.updatetime = 500
 
-vim.opt.hidden = false
+vim.opt.hidden = true
+
+vim.opt.splitbelow = true
+vim.opt.splitright = true
 
 vim.g.mapleader = "ù"
-vim.keymap.set("n", "<C-e>", vim.cmd.Ex)
 
 vim.keymap.set("v", "J", ":m '>+1<CR>gv=gv")
 vim.keymap.set("v", "K", ":m '<-2<CR>gv=gv")
 
 vim.keymap.set("n", "J", "mzJ`z")
---vim.keymap.set("n", "n", "nzzzv")
---vim.keymap.set("n", "N", "Nzzzv")
+
 vim.keymap.set("n", "=ap", "ma=ap'a")
 
 -- vim.keymap.set("x", "<leader>p", [["_dP]])
@@ -151,20 +141,12 @@ vim.keymap.set("i", "<C-c>", "<Esc>")
 vim.keymap.set("n", "Q", "<nop>")
 --vim.keymap.set("n", "<C-f>", "<cmd>silent !tmux neww tmux-sessionizer<CR>")
 
-vim.keymap.set("n", "<C-k>", "<cmd>cnext<CR>zz")
-vim.keymap.set("n", "<C-j>", "<cmd>cprev<CR>zz")
-vim.keymap.set("n", "<leader>k", "<cmd>lnext<CR>zz")
-vim.keymap.set("n", "<leader>j", "<cmd>lprev<CR>zz")
+-- vim.keymap.set("n", "<C-k>", "<cmd>cnext<CR>zz")
+-- vim.keymap.set("n", "<C-j>", "<cmd>cprev<CR>zz")
+-- vim.keymap.set("n", "<leader>k", "<cmd>lnext<CR>zz")
+-- vim.keymap.set("n", "<leader>j", "<cmd>lprev<CR>zz")
 
 vim.keymap.set("n", "<leader>s", [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]])
-vim.keymap.set("n", "<leader>x", "<cmd>!chmod +x %<CR>", { silent = true })
-
-vim.keymap.set("n", "<leader>ca", function()
-	require("cellular-automaton").start_animation("make_it_rain")
-end)
-vim.keymap.set("n", "<leader>mr", "<cmd>CellularAutomaton make_it_rain<CR>");
-
---vim.diagnostic.config({ virtual_text = true })
 
 vim.keymap.set("n", "<leader>cd", ":exec 'cd' . expand('%:p:h')<CR>", { silent = true })
 
@@ -172,7 +154,6 @@ vim.keymap.set("n", "<leader>cd", ":exec 'cd' . expand('%:p:h')<CR>", { silent =
 vim.keymap.set("n", "<RightMouse>", "<nop>")
 vim.keymap.set("v", "<RightMouse>", [["+y]])
 --vim.keymap.set("i", "<RightMouse>", [[<C-o>"+P]])
---vim.keymap.set("c", "<RightMouse>", "aaa")
 
 vim.keymap.set({"n", "v"}, "<C-l>", "zL")
 vim.keymap.set({"n", "v"}, "<C-h>", "zH")
@@ -180,10 +161,29 @@ vim.keymap.set("i", "<C-l>", "<C-o>zL")
 vim.keymap.set("i", "<C-h>", "<C-o>zH")
 
 vim.keymap.set("n", "*", "*N:set hls<CR>", { silent = true })
-vim.keymap.set("n", "<Leader>j", ":set hls!<CR>", { silent = true })
+vim.keymap.set("n", "<Leader>*", ":set hls!<CR>", { silent = true })
 
 vim.keymap.set("t", "<Esc>", "<C-\\><C-n>")
 vim.keymap.set("t", "<C-v><Esc>", "<Esc>")
+
+--vim.keymap.set("n", "<C-w>s", "<C-w>s<C-w>j")
+--vim.keymap.set("n", "<C-w>v", "<C-w>v<C-w>l")
+vim.keymap.set("n", "<C-w>=",  "<C-w>s<C-w>j")
+vim.keymap.set("n", "<C-w>\"", "<C-w>v<C-w>l")
+
+-- vim.keymap.set("n", "<leader><Up>",    "<C-w>k")
+-- vim.keymap.set("n", "<leader><Down>",  "<C-w>j")
+-- vim.keymap.set("n", "<leader><Left>",  "<C-w>h")
+-- vim.keymap.set("n", "<leader><Right>", "<C-w>l")
+vim.keymap.set("n", "<C-k>", "<C-w>k")
+vim.keymap.set("n", "<C-j>", "<C-w>j")
+vim.keymap.set("n", "<C-h>", "<C-w>h")
+vim.keymap.set("n", "<C-l>", "<C-w>l")
+
+vim.keymap.set("n", "-", "<cmd>Oil<cr>")
+
+vim.keymap.set("n", "<leader>cn", ":cn<cr>")
+vim.keymap.set("n", "<leader>cp", ":cp<cr>")
 
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then

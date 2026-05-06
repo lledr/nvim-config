@@ -10,23 +10,16 @@ return {
         "hrsh7th/nvim-cmp",
         "j-hui/fidget.nvim",
         "Julian/lean.nvim",
-        -- "nvim-java/nvim-java",
         "mfussenegger/nvim-jdtls",
-        -- "JavaHello/spring-boot.nvim",
     },
 
     config = function()
         require("fidget").setup({})
         require("mason").setup()
-        -- require("java").setup()
         require("mason-lspconfig").setup()
-        -- require("spring_boot").init_lsp_commands()
 
         local capabilities = vim.tbl_deep_extend( "force",
             {}, vim.lsp.protocol.make_client_capabilities(), require("cmp_nvim_lsp").default_capabilities())
-
-        --require('lspconfig').jdtls.setup({})
-        --vim.lsp.enable("jdtls")
 
         vim.lsp.config('lua_ls', {
             capabilities = capabilities,
